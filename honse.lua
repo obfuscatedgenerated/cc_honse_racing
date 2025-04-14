@@ -4,6 +4,7 @@ local honse_template = obsi.graphics.newImage("honse_template.nfp")
 local field = obsi.graphics.newImage("field.orli")
 
 local FIELD_AIR = colors.white
+local TRANSPARENT = -1
 
 local function get_colour_honse(colour)
     local new_honse = obsi.graphics.newBlankImage(honse_template.width, honse_template.height)
@@ -30,7 +31,9 @@ Honse.mt = {}
 Honse.prototype = {
     gfx = {{}},
     x = 1,
-    y = 1
+    y = 1,
+    travel_x = 0,
+    travel_y = 0,
 }
 
 function Honse.new(o)
@@ -51,6 +54,11 @@ end
 
 function Honse.prototype:draw()
     obsi.graphics.draw(self.gfx, self.x, self.y)
+end
+
+function Honse.prototype:apply_travel()
+    self.x = self.x + self.travel_x
+    self.y = self.y + self.travel_y
 end
 
 local BB = {}
@@ -126,8 +134,8 @@ function BB.prototype:for_each_point(func, ignore_mask)
                 local x_in_bbox = x - self.x0 + 1
                 local y_in_bbox = y - self.y0 + 1
 
-                -- any mask value that isnt -1 (transparent) is ignored
-                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == -1 then
+                -- any mask value that isnt transparent is ignored
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
                     func(x, y)
                 end
             end
@@ -135,7 +143,7 @@ function BB.prototype:for_each_point(func, ignore_mask)
     end
 end
 
-function BB.prototype:test_each_point(func, ignore_mask)
+function BB.prototype:test_any_point(func, ignore_mask)
     for x = self.x0, self.x1 do
         for y = self.y0, self.y1 do
             if not ignore_mask then
@@ -146,8 +154,8 @@ function BB.prototype:test_each_point(func, ignore_mask)
                 local x_in_bbox = x - self.x0 + 1
                 local y_in_bbox = y - self.y0 + 1
 
-                -- any mask value that isnt -1 (transparent) is ignored
-                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == -1 then
+                -- any mask value that isnt TRANSPARENT (transparent) is ignored
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
                     if func(x, y) then
                         return true
                     end
@@ -157,6 +165,57 @@ function BB.prototype:test_each_point(func, ignore_mask)
     end
 
     return false
+end
+
+function BB.prototype:test_all_points(func, ignore_mask)
+    local results = {}
+
+    for x = self.x0, self.x1 do
+        for y = self.y0, self.y1 do
+            if not ignore_mask then
+                results[x] = func(x, y)
+            else
+                local x_in_bbox = x - self.x0 + 1
+                local y_in_bbox = y - self.y0 + 1
+
+                -- any mask value that isnt transparent is ignored
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
+                    results[x] = func(x, y)
+                else
+                    results[x] = nil
+                end
+            end
+        end
+    end
+
+    return results
+end
+
+-- TODO: way to test only on edges, all points might be overkill
+
+function BB.prototype:for_each_corner(func)
+    func(self.x0, self.y0)
+    func(self.x1, self.y0)
+    func(self.x0, self.y1)
+    func(self.x1, self.y1)
+end
+
+function BB.prototype:test_any_corner(func)
+    if func(self.x0, self.y0) then return true end
+    if func(self.x1, self.y0) then return true end
+    if func(self.x0, self.y1) then return true end
+    if func(self.x1, self.y1) then return true end
+
+    return false
+end
+
+function BB.prototype:test_all_corners(func)
+    return {
+        tl=func(self.x0, self.y0),
+        tr=func(self.x1, self.y0),
+        bl=func(self.x0, self.y1),
+        br=func(self.x1, self.y1)
+    }
 end
 
 function Honse.prototype:get_bb()
@@ -173,8 +232,10 @@ local blue_honse
 
 function obsi.load()
     green_honse = Honse.from_colour(colors.green)
-    green_honse.x = 5
+    green_honse.x = 10
     green_honse.y = 10
+    green_honse.travel_x = 1
+    green_honse.travel_y = 1
 
     blue_honse = Honse.from_colour(colors.blue)
     blue_honse.x = 20
@@ -184,11 +245,12 @@ end
 function obsi.draw()
     obsi.graphics.draw(field, 1, 1)
 
+    -- check for collision
     local green_hitbox = green_honse:get_bb():get_expanded(1, 1)
-    local colliding = green_hitbox:test_each_point(function(x, y)
+    local colliding = green_hitbox:test_any_point(function(x, y)
         local colour = read_field_colour(x, y)
 
-        if colour ~= nil and colour ~= FIELD_AIR and colour ~= -1 then
+        if colour ~= nil and colour ~= FIELD_AIR and colour ~= TRANSPARENT then
             return true
         end
     end, honse_template.data)
@@ -197,10 +259,49 @@ function obsi.draw()
 
     if colliding then
         obsi.graphics.write("colliding", 1, 1)
-        -- TODO: bounce
+
+        -- for each hit, compare position to the center and contribute to a bounce vector
+        local center_x, center_y = green_hitbox:get_center()
+        local bounce_x = 0
+        local bounce_y = 0
+        local panic = true
+
+        green_hitbox:for_each_point(function(x, y)
+            local colour = read_field_colour(x, y)
+
+            if colour ~= nil and colour ~= FIELD_AIR and colour ~= TRANSPARENT then
+                local x_diff = x - center_x
+                local y_diff = y - center_y
+
+                bounce_x = bounce_x + x_diff
+                bounce_y = bounce_y + y_diff
+            else 
+                panic = false
+            end
+        end)
+
+        -- if all points collided, panic!
+        if panic then
+            -- TODO: add panic behaviour
+        end
+
+        -- normalise the bounce vector
+        local bounce_length = math.sqrt(bounce_x * bounce_x + bounce_y * bounce_y)
+        if bounce_length > 0 then
+            bounce_x = bounce_x / bounce_length
+            bounce_y = bounce_y / bounce_length
+
+            -- get the dot product of the bounce vector and the travel vector
+            local dot = green_honse.travel_x * bounce_x + green_honse.travel_y * bounce_y
+
+            -- reflect
+            green_honse.travel_x = green_honse.travel_x - 2 * dot * bounce_x
+            green_honse.travel_y = green_honse.travel_y - 2 * dot * bounce_y
+        end
     end
 
-    green_honse.x = green_honse.x + 1
+    green_honse:apply_travel()
+    blue_honse:apply_travel()
 
     green_honse:draw()
     blue_honse:draw()
