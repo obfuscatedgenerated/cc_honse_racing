@@ -44,8 +44,66 @@ function Honse.prototype:draw()
     obsi.graphics.draw(self.gfx, self.x, self.y)
 end
 
+local BB = {}
+BB.mt = {}
+BB.prototype = {
+    x0 = 0,
+    y0 = 0,
+    x1 = 0,
+    y1 = 0
+}
+
+function BB.new(o)
+    setmetatable(o, BB.mt)
+    return o
+end
+
+function BB.from_coords(x0, y0, x1, y1)
+    return BB.new{x0=x0, y0=y0, x1=x1, y1=y1}
+end
+
+function BB.mt.__index(table, key)
+    if key == "width" then return table.x1 - table.x0 end
+    if key == "height" then return table.y1 - table.y0 end
+
+    return BB.prototype[key]
+end
+
+function BB.prototype:copy()
+    return BB.new(self.x0, self.y0, self.x1, self.y1)
+end
+
+function BB.prototype:intersects(other)
+    return not (self.x0 > other.x1 or self.x1 < other.x0 or self.y0 > other.y1 or self.y1 < other.y0)
+end
+
+function BB.prototype:contains(other)
+    return self.x0 <= other.x0 and self.y0 <= other.y0 and self.x1 >= other.x1 and self.y1 >= other.y1
+end
+
+function BB.prototype:contains_point(x, y)
+    return x >= self.x0 and x <= self.x1 and y >= self.y0 and y <= self.y1
+end
+
+function BB.prototype:expand(x, y)
+    self.x0 = self.x0 - x
+    self.y0 = self.y0 - y
+    self.x1 = self.x1 + x
+    self.y1 = self.y1 + y
+end
+
+function BB.prototype:get_expanded(x, y)
+    local new_bb = self:copy()
+    new_bb:expand(x, y)
+    return new_bb
+end
+
+function BB.prototype:get_center()
+    return (self.x0 + self.x1) / 2, (self.y0 + self.y1) / 2
+end
+
 function Honse.prototype:get_bb()
-    return {
+    return BB.new{
         x0 = self.x,
         y0 = self.y,
         x1 = self.x + self.width,
@@ -68,6 +126,8 @@ function obsi.draw()
 
     green_honse:draw()
     blue_honse:draw()
+
+    local hitbox = green_honse:get_bb():expand(1, 1)
 end
 
 obsi.init()
