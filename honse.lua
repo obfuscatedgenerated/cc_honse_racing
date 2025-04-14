@@ -2,7 +2,7 @@ local obsi = require("obsi2")
 
 local honse_template = obsi.graphics.newImage("honse_template.nfp")
 
-function get_colour_honse(colour)
+local function get_colour_honse(colour)
     local new_honse = obsi.graphics.newBlankImage(honse_template.width, honse_template.height)
     for x=1, #honse_template.data do
         for y=1, #honse_template.data[x] do
