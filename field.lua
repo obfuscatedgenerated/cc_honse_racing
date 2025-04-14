@@ -6,10 +6,10 @@ local AIR_COLOUR = colors.white
 local TRANSPARENT = -1
 
 local function read_colour(x, y)
-    local col = sprite.data[y]
+    local col = sprite.data[math.floor(y)]
     if col == nil then return nil end
 
-    return col[x]
+    return col[math.floor(x)]
 end
 
 return {
