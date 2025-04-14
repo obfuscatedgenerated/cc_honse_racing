@@ -5,6 +5,8 @@ local BB = require "bb"
 
 local honse_template = obsi.graphics.newImage("honse_template.nfp")
 
+local PHYSICS_MARGIN = 2
+
 local Honse = {}
 Honse.mt = {}
 Honse.prototype = {
@@ -63,7 +65,7 @@ function Honse.prototype:get_bb()
 end
 
 function Honse.prototype:get_hitbox()
-    return self:get_bb():get_expanded(1, 1)
+    return self:get_bb():get_expanded(PHYSICS_MARGIN, PHYSICS_MARGIN)
 end
 
 function Honse.prototype:check_collision()
@@ -84,9 +86,13 @@ function Honse.prototype:apply_bounce()
     local center_x, center_y = hbox:get_center()
     local bounce_x = 0
     local bounce_y = 0
-    local panic = true
+
+    local total_points = 0
+    local total_collisions = 0
 
     hbox:for_each_point(function(x, y)
+        total_points = total_points + 1
+
         local colour = field.read_colour(x, y)
 
         if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= field.TRANSPARENT then
@@ -95,15 +101,17 @@ function Honse.prototype:apply_bounce()
 
             bounce_x = bounce_x + x_diff
             bounce_y = bounce_y + y_diff
-        else
-            panic = false
+
+            total_collisions = total_collisions + 1
         end
     end)
 
     -- if all points collided, panic!
-    if panic then
-        -- TODO: add panic behaviour
+    if total_collisions == total_points then
+        -- TODO: panic
     end
+
+    -- TODO: decide if need to nudge if penetration is high
 
     -- normalise the bounce vector
     local bounce_length = math.sqrt(bounce_x * bounce_x + bounce_y * bounce_y)
