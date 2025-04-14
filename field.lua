@@ -1,0 +1,20 @@
+local obsi = require "obsi2"
+
+local sprite = obsi.graphics.newImage("field.orli")
+
+local AIR_COLOUR = colors.white
+local TRANSPARENT = -1
+
+local function read_colour(x, y)
+    local col = sprite.data[y]
+    if col == nil then return nil end
+
+    return col[x]
+end
+
+return {
+    sprite = sprite,
+    AIR_COLOUR = AIR_COLOUR,
+    TRANSPARENT = TRANSPARENT,
+    read_colour = read_colour,
+}
