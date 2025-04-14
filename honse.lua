@@ -1,6 +1,7 @@
 local obsi = require("obsi2")
 
 local honse_template = obsi.graphics.newImage("honse_template.nfp")
+local field = obsi.graphics.newImage("field.orli")
 
 local function get_colour_honse(colour)
     local new_honse = obsi.graphics.newBlankImage(honse_template.width, honse_template.height)
@@ -63,6 +64,8 @@ function obsi.load()
 end
 
 function obsi.draw()
+    obsi.graphics.draw(field, 1, 1)
+
     green_honse:draw()
     blue_honse:draw()
 end
