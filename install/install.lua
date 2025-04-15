@@ -11,6 +11,7 @@ ccif.add_file("/honse/game_loop.lua", repo .. "game_loop.lua")
 ccif.add_file("/honse/game_state.lua", repo .. "game_state.lua")
 ccif.add_file("/honse/honse.lua", repo .. "honse.lua")
 ccif.add_file("/honse/install.lua", repo .. "install/meta.lua")
+ccif.add_file("/honse/honse_template.nfp", repo .. "honse_template.nfp")
 
 local success = ccif.execute()
 
