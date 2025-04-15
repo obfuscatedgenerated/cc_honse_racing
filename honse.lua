@@ -145,7 +145,6 @@ function obsi.draw()
 
     if state == GameState.GOT_WINNER then
         obsi.graphics.write("Winner: " .. winner.name, 1, 1)
-        obsi.graphics.draw(winner.sprite, 1, 2)
 
         -- reset after 5 seconds
         if obsi.timer.getTime() - timer_start > 5 then
