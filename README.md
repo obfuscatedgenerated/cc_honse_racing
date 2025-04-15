@@ -11,3 +11,5 @@ Run with `honse/init` or write your custom logic with `require "honse/game_loop"
 `wget run https://github.com/obfuscatedgenerated/cc_honse_racing/raw/refs/heads/main/install/install.lua`
 
 or `git clone https://github.com/obfuscatedgenerated/cc_honse_racing.git honse` and manually add OBSI2 to the `/lib/` directory.
+
+![image](https://github.com/user-attachments/assets/657e4aef-e772-4995-a871-8e4de941af22)
