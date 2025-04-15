@@ -5,7 +5,12 @@ local field = require "field"
 
 local green_honse
 local blue_honse
+
 -- TODO: randomisation
+-- TODO: start cage
+-- TODO: bets
+-- TODO: time limit
+
 function obsi.load()
     green_honse = Honse.from_colour(colors.green)
     green_honse.x = 30
