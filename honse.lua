@@ -6,65 +6,61 @@ local field = require "field"
 
 local honses = {}
 
--- TODO: randomisation
--- TODO: start cage
--- TODO: bets
 -- TODO: time limit
+
+local function respawn_all()
+    for i = 1, #honses do
+        local honse = honses[i]
+        local spawn_x, spawn_y = field.spawn_bb:random_point()
+        honse.x = spawn_x
+        honse.y = spawn_y
+        honse.travel_x = 1
+        honse.travel_y = 1
+    end
+end
 
 function obsi.load()
     local green_honse = Honse.from_colour(colors.green)
     green_honse.name = "Green"
-    local spawn_x, spawn_y = field.spawn_bb:random_point()
-    green_honse.x = 25
-    green_honse.y = 10
-    green_honse.travel_x = 1
-    green_honse.travel_y = 1
-
     table.insert(honses, green_honse)
 
     local blue_honse = Honse.from_colour(colors.blue)
     blue_honse.name = "Blue"
-    local spawn_x, spawn_y = field.spawn_bb:random_point()
-    blue_honse.x = spawn_x
-    blue_honse.y = spawn_y
-    blue_honse.travel_x = 1
-    blue_honse.travel_y = 1
-
     table.insert(honses, blue_honse)
 
     local red_honse = Honse.from_colour(colors.red)
     red_honse.name = "Red"
-    local spawn_x, spawn_y = field.spawn_bb:random_point()
-    red_honse.x = spawn_x
-    red_honse.y = spawn_y
-    red_honse.travel_x = 1
-    red_honse.travel_y = 1
-
     table.insert(honses, red_honse)
+
+    local yellow_honse = Honse.from_colour(colors.yellow)
+    yellow_honse.name = "Yellow"
+    table.insert(honses, yellow_honse)
+
+    respawn_all()
 end
 
-function simulate_all(state)
+local function simulate_all(state)
     for i = 1, #honses do
         local honse = honses[i]
         honse:simulate(state, honses)
     end
 end
 
-function apply_travel_all()
+local function apply_travel_all()
     for i = 1, #honses do
         local honse = honses[i]
         honse:apply_travel()
     end
 end
 
-function draw_all()
+local function draw_all()
     for i = 1, #honses do
         local honse = honses[i]
         honse:draw()
     end
 end
 
-function check_winner()
+local function check_winner()
     for i = 1, #honses do
         local honse = honses[i]
         if honse.winner then
@@ -76,7 +72,7 @@ function check_winner()
 end
 
 local state = GameState.PLACE_BETS
-local bets_start = obsi.timer.getTime()
+local timer_start = obsi.timer.getTime()
 
 function obsi.draw()
     obsi.graphics.draw(field.sprite, 1, 1)
@@ -100,7 +96,7 @@ function obsi.draw()
         -- draw red place bets window showing time
         obsi.graphics.setForegroundColor(colors.white)
         obsi.graphics.setBackgroundColor(colors.red)
-        local time_left = math.ceil(10 - (obsi.timer.getTime() - bets_start))
+        local time_left = math.ceil(10 - (obsi.timer.getTime() - timer_start))
         local text = "PLACE BETS IN... " .. time_left
         if time_left < 1 then text = "GO!" end
         local text_width = #text
@@ -121,18 +117,30 @@ function obsi.draw()
 
     local winner = check_winner()
 
-    if winner then
+    if winner and state ~= GameState.GOT_WINNER then
+        -- one off transition
+        timer_start = obsi.timer.getTime()
         state = GameState.GOT_WINNER
+    end
 
+    if state == GameState.GOT_WINNER then
         obsi.graphics.write("Winner: " .. winner.name, 1, 1)
         obsi.graphics.draw(winner.sprite, 1, 2)
+
+        -- reset after 5 seconds
+        if obsi.timer.getTime() - timer_start > 5 then
+            state = GameState.PLACE_BETS
+            timer_start = obsi.timer.getTime()
+            
+            respawn_all()
+        end
     end
 
     if state == GameState.PLACE_BETS then
         -- if it's been 10 seconds since starting betting, end betting
-        if obsi.timer.getTime() - bets_start > 10 then
+        if obsi.timer.getTime() - timer_start > 10 then
             state = GameState.RACING
-            bets_start = nil
+            timer_start = nil
         end
     end
 end

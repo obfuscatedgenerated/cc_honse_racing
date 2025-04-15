@@ -35,7 +35,7 @@ end
 
 local center = {
     x = math.floor(sprite.width / 4),
-    y = math.floor(sprite.height / 5)
+    y = math.floor(sprite.height / 5) - 1
 }
 
 return {
