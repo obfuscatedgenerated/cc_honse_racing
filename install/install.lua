@@ -10,7 +10,7 @@ ccif.add_file("/honse/field.orli", repo .. "field.orli")
 ccif.add_file("/honse/game_loop.lua", repo .. "game_loop.lua")
 ccif.add_file("/honse/game_state.lua", repo .. "game_state.lua")
 ccif.add_file("/honse/honse.lua", repo .. "honse.lua")
-ccif.add_file("/honse/install.lua", repo .. "/install/meta.lua")
+ccif.add_file("/honse/install.lua", repo .. "install/meta.lua")
 
 local success = ccif.execute()
 
