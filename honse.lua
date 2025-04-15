@@ -76,6 +76,7 @@ function check_winner()
 end
 
 local state = GameState.PLACE_BETS
+local bets_start = obsi.timer.getTime()
 
 function obsi.draw()
     obsi.graphics.draw(field.sprite, 1, 1)
@@ -96,6 +97,16 @@ function obsi.draw()
         obsi.graphics.write("T", tx0, ty0 + 2)
         obsi.graphics.write("E", tx0, ty0 + 3)
 
+        -- draw red place bets window showing time
+        obsi.graphics.setForegroundColor(colors.white)
+        obsi.graphics.setBackgroundColor(colors.red)
+        local time_left = math.ceil(10 - (obsi.timer.getTime() - bets_start))
+        local text = "PLACE BETS IN... " .. time_left
+        if time_left < 1 then text = "GO!" end
+        local text_width = #text
+        local text_x = field.center.x - math.floor(text_width / 2)
+        obsi.graphics.write(text, text_x, field.center.y)
+
         -- revert colours
         obsi.graphics.setForegroundColor(colors.white)
         obsi.graphics.setBackgroundColor(colors.black)
@@ -115,6 +126,14 @@ function obsi.draw()
 
         obsi.graphics.write("Winner: " .. winner.name, 1, 1)
         obsi.graphics.draw(winner.sprite, 1, 2)
+    end
+
+    if state == GameState.PLACE_BETS then
+        -- if it's been 10 seconds since starting betting, end betting
+        if obsi.timer.getTime() - bets_start > 10 then
+            state = GameState.RACING
+            bets_start = nil
+        end
     end
 end
 

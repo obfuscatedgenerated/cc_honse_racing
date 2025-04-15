@@ -33,8 +33,14 @@ local function read_colour(x, y)
     return col[math.floor(x) + READ_SHIFT.x]
 end
 
+local center = {
+    x = math.floor(sprite.width / 4),
+    y = math.floor(sprite.height / 5)
+}
+
 return {
     sprite = sprite,
+    center = center,
     spawn_bb = spawn_bb,
     gate_bb = gate_bb,
     AIR_COLOUR = AIR_COLOUR,
