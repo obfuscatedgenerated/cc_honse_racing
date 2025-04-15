@@ -79,6 +79,11 @@ end
 function Honse.prototype:check_collision()
         -- TODO: check horse and other collisions
     return self:get_hitbox():test_any_point(function(x, y)
+        -- offscreen is always a collision
+        if x < 1 or y < 1 or x > field.sprite.width or y > field.sprite.height then
+            return true
+        end
+
         local colour = field.read_colour(x, y)
 
         if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= field.TRANSPARENT then
@@ -153,6 +158,7 @@ function Honse.prototype:simulate()
         self.last_safe_y = self.y
     end
 
+    -- TODO: win check broke?
     if self.winner then
         obsi.graphics.write("winner", 1, 1)
         return
