@@ -85,7 +85,7 @@ local function check_oob_all()
     for i = 1, #honses do
         local honse = honses[i]
         if honse:check_oob() then
-            honse:respawn()
+            respawn(honse)
         end
     end
 end
