@@ -1,4 +1,4 @@
-local obsi = require "obsi2"
+local obsi = require "/lib/obsi2"
 local game_loop = require "game_loop"
 
 -- this init file exists as the simplest way to initialise the game loop

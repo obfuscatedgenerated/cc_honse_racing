@@ -1,4 +1,4 @@
-local obsi = require "obsi2"
+local obsi = require "/lib/obsi2"
 
 local BB = require "bb"
 

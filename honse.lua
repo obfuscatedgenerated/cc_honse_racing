@@ -1,4 +1,4 @@
-local obsi = require "obsi2"
+local obsi = require "/lib/obsi2"
 
 local GameState = require "game_state"
 local field = require "field"
