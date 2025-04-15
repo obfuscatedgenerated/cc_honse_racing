@@ -28,8 +28,8 @@ end
 function obsi.draw()
     obsi.graphics.draw(field.sprite, 1, 1)
 
-    green_honse:simulate()
-    blue_honse:simulate()
+    green_honse:simulate({blue_honse})
+    blue_honse:simulate({green_honse})
 
     green_honse:draw()
     blue_honse:draw()

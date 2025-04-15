@@ -5,7 +5,7 @@ local BB = require "bb"
 
 local honse_template = obsi.graphics.newImage("honse_template.nfp")
 
-local PHYSICS_MARGIN = 2
+local PHYSICS_MARGIN = 1 -- TODO: sep margin for walls and horse collision. walls best as 2, horse best as 0 or 1
 local MAX_PENETRATION = 0.75
 local BB_SHIFT = {
     x = 0,
@@ -76,8 +76,24 @@ function Honse.prototype:get_hitbox()
     return self:get_bb():get_expanded(PHYSICS_MARGIN, PHYSICS_MARGIN)
 end
 
-function Honse.prototype:check_collision()
-        -- TODO: check horse and other collisions
+function Honse.prototype:get_vector_from(other)
+    local other_x, other_y = other:get_bb():get_center()
+    local x_diff = other_x - self.x
+    local y_diff = other_y - self.y
+
+    return x_diff, y_diff
+end
+
+function Honse.prototype:get_vector_to(other)
+    local other_x, other_y = other:get_bb():get_center()
+    local x_diff = self.x - other_x
+    local y_diff = self.y - other_y
+
+    return x_diff, y_diff
+end
+
+function Honse.prototype:check_wall_collision()
+    -- TODO: check horse and other collisions
     return self:get_hitbox():test_any_point(function(x, y)
         -- offscreen is always a collision
         if x < 1 or y < 1 or x > field.sprite.width or y > field.sprite.height then
@@ -96,7 +112,7 @@ function Honse.prototype:check_collision()
     end, honse_template.data)
 end
 
-function Honse.prototype:apply_bounce()
+function Honse.prototype:apply_wall_bounce()
     local hbox = self:get_hitbox()
 
     -- for each hit, compare position to the center and contribute to a bounce vector
@@ -148,11 +164,41 @@ function Honse.prototype:apply_bounce()
     end
 end
 
-function Honse.prototype:simulate()
-    -- check for collision
-    local colliding = self:check_collision()
+function Honse.prototype:check_and_apply_horse_collision(others)
+    for i = 1, #others do
+        local other = others[i]
 
-    if not colliding then
+        if other ~= self and self:get_hitbox():intersects(other:get_bb()) then
+            obsi.graphics.write("horse colliding", 1, 2)
+            
+            -- only apply my own bounce, the NEIGHbour can handle its own bouncing
+            local x_diff, y_diff = self:get_vector_from(other)
+            local x_diff_len = math.sqrt(x_diff * x_diff + y_diff * y_diff)
+
+            if x_diff_len > 0 then
+                x_diff = x_diff / x_diff_len
+                y_diff = y_diff / x_diff_len
+
+                -- get the dot product of the bounce vector and the travel vector
+                local dot = self.travel_x * x_diff + self.travel_y * y_diff
+
+                -- reflect
+                self.travel_x = self.travel_x - 2 * dot * x_diff
+                self.travel_y = self.travel_y - 2 * dot * y_diff
+
+                -- nudge along the normal to avoid sticking
+                self.x = self.x - x_diff * 0.5
+                self.y = self.y - y_diff * 0.5
+            end
+        end
+    end
+end
+
+function Honse.prototype:simulate(others)
+    -- check for collision
+    local wall_colliding = self:check_wall_collision()
+
+    if not wall_colliding then
         -- save the last safe position
         self.last_safe_x = self.x
         self.last_safe_y = self.y
@@ -164,10 +210,12 @@ function Honse.prototype:simulate()
         return
     end
 
-    if colliding then
-        obsi.graphics.write("colliding", 1, 1)
-        self:apply_bounce()
+    if wall_colliding then
+        obsi.graphics.write("wall colliding", 1, 1)
+        self:apply_wall_bounce()
     end
+
+    self:check_and_apply_horse_collision(others)
 
     -- apply travel
     self:apply_travel()
