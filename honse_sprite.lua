@@ -98,11 +98,15 @@ function Honse.prototype:get_vector_to(other)
     return x_diff, y_diff
 end
 
+function Honse.prototype:check_oob()
+    return self.x < 1 or self.y < 1 or self.x > field.sprite.width or self.y > field.sprite.height
+end
+
 function Honse.prototype:check_wall_collision()
     -- TODO: check horse and other collisions
     return self:get_hitbox():test_any_point(function(x, y)
         -- offscreen is always a collision
-        if x < 1 or y < 1 or x > field.sprite.width or y > field.sprite.height then
+        if self:check_oob() then
             return true
         end
 

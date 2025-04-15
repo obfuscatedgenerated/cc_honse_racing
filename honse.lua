@@ -7,15 +7,24 @@ local field = require "field"
 local honses = {}
 
 -- TODO: time limit
+-- TODO: overlay details
+-- TODO: hooks
+
+local function respawn(honse)
+    local spawn_x, spawn_y = field.spawn_bb:random_point()
+    honse.winner = false
+    honse.x = spawn_x
+    honse.y = spawn_y
+    honse.travel_x = 1
+    honse.travel_y = 1
+
+    return honse
+end
 
 local function respawn_all()
     for i = 1, #honses do
         local honse = honses[i]
-        local spawn_x, spawn_y = field.spawn_bb:random_point()
-        honse.x = spawn_x
-        honse.y = spawn_y
-        honse.travel_x = 1
-        honse.travel_y = 1
+        respawn(honse)
     end
 end
 
@@ -71,6 +80,16 @@ local function check_winner()
     return nil
 end
 
+local function check_oob_all()
+    -- sometimes the oob detection in collision isnt enough, so respawn any horse that is very lost
+    for i = 1, #honses do
+        local honse = honses[i]
+        if honse:check_oob() then
+            honse:respawn()
+        end
+    end
+end
+
 local state = GameState.PLACE_BETS
 local timer_start = obsi.timer.getTime()
 
@@ -97,7 +116,7 @@ function obsi.draw()
         obsi.graphics.setForegroundColor(colors.white)
         obsi.graphics.setBackgroundColor(colors.red)
         local time_left = math.ceil(10 - (obsi.timer.getTime() - timer_start))
-        local text = "PLACE BETS IN... " .. time_left
+        local text = "PLACE BETS... " .. time_left
         if time_left < 1 then text = "GO!" end
         local text_width = #text
         local text_x = field.center.x - math.floor(text_width / 2)
@@ -111,6 +130,7 @@ function obsi.draw()
     if state ~= GameState.GOT_WINNER then
         simulate_all(state)
         apply_travel_all()
+        check_oob_all()
     end
 
     draw_all()
