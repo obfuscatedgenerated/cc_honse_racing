@@ -172,4 +172,8 @@ function BB.prototype:random_point()
     return x, y
 end
 
+function BB.prototype:has_point(x, y)
+    return x >= self.x0 and x <= self.x1 and y >= self.y0 and y <= self.y1
+end
+
 return BB

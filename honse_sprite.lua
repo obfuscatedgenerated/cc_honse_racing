@@ -1,5 +1,6 @@
 local obsi = require "obsi2"
 
+local GameState = require "game_state"
 local field = require "field"
 local BB = require "bb"
 
@@ -201,11 +202,85 @@ function Honse.prototype:check_and_apply_horse_collision(others)
     end
 end
 
-function Honse.prototype:simulate(others)
+function Honse.prototype:check_gate_collision()
+    return self:get_hitbox():intersects(field.gate_bb)
+end
+
+function Honse.prototype:apply_gate_bounce()
+    -- treat like a wall
+    local hbox = self:get_hitbox()
+    local center_x, center_y = hbox:get_center()
+
+    local bounce_x = 0
+    local bounce_y = 0
+
+    local total_points = 0
+    local total_collisions = 0
+
+    hbox:for_each_point(function(x, y)
+        total_points = total_points + 1
+
+        local has_point = field.gate_bb:has_point(x, y)
+
+        if has_point then
+            local x_diff = x - center_x
+            local y_diff = y - center_y
+
+            bounce_x = bounce_x + x_diff
+            bounce_y = bounce_y + y_diff
+
+            total_collisions = total_collisions + 1
+        end
+    end)
+
+    -- if too many points collided, panic!
+    if total_collisions / total_points > MAX_PENETRATION then
+        self.x = self.last_safe_x
+        self.y = self.last_safe_y
+    end
+
+    -- normalise the bounce vector
+    local bounce_length = math.sqrt(bounce_x * bounce_x + bounce_y * bounce_y)
+    if bounce_length > 0 then
+        bounce_x = bounce_x / bounce_length
+        bounce_y = bounce_y / bounce_length
+
+        -- get the dot product of the bounce vector and the travel vector
+        local dot = self.travel_x * bounce_x + self.travel_y * bounce_y
+
+        -- reflect
+        self.travel_x = self.travel_x - 2 * dot * bounce_x
+        self.travel_y = self.travel_y - 2 * dot * bounce_y
+
+        -- nudge along the normal to avoid sticking
+        self.x = self.x - bounce_x * 0.5
+        self.y = self.y - bounce_y * 0.5
+    end
+
+    -- TODO: unite this logic with wall bounce
+end
+
+function Honse.prototype:simulate(state, others)
+    -- if in place bets state, check gate collision
+    local gate_collided = false
+    if state == GameState.PLACE_BETS then
+        if self:check_gate_collision() then
+            gate_collided = true
+
+            if COLLIDE_DEBUG then
+                obsi.graphics.write("gate colliding", 1, 2)
+            end
+
+            -- apply gate bounce
+            self:apply_gate_bounce()
+        end
+    end
+
+
     -- check for collision
     local wall_colliding = self:check_wall_collision()
 
-    if not wall_colliding then
+    if not gate_collided and not wall_colliding then
         -- save the last safe position
         self.last_safe_x = self.x
         self.last_safe_y = self.y

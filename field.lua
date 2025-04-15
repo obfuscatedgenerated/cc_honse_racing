@@ -21,9 +21,9 @@ local spawn_bb = BB.new{
 
 local gate_bb = BB.new{
     x0 = 50,
-    y0 = 7,
+    y0 = 9,
     x1 = 55,
-    y1 = 23
+    y1 = 22
 }
 
 local function read_colour(x, y)

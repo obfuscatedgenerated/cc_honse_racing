@@ -1,5 +1,6 @@
 local obsi = require "obsi2"
 
+local GameState = require "game_state"
 local Honse = require "honse_sprite"
 local field = require "field"
 
@@ -42,10 +43,10 @@ function obsi.load()
     table.insert(honses, red_honse)
 end
 
-function simulate_all()
+function simulate_all(state)
     for i = 1, #honses do
         local honse = honses[i]
-        honse:simulate(honses)
+        honse:simulate(state, honses)
     end
 end
 
@@ -74,14 +75,34 @@ function check_winner()
     return nil
 end
 
-local running = true
+local state = GameState.PLACE_BETS
 
 function obsi.draw()
     obsi.graphics.draw(field.sprite, 1, 1)
-    field.gate_bb:debug_draw()
 
-    if running then
-        simulate_all()
+    -- draw gate text if gate should be visible
+    if state == GameState.PLACE_BETS then
+        -- draw gate rect
+        obsi.graphics.setForegroundColor(colors.white)
+        obsi.graphics.rectangle("fill", field.gate_bb.x0, field.gate_bb.y0, field.gate_bb.width, field.gate_bb.height)
+
+        -- draw gate letters
+        obsi.graphics.setForegroundColor(colors.black)
+        obsi.graphics.setBackgroundColor(colors.white)
+        local tx0, ty0 = obsi.graphics.pixelToTermCoordinates(field.gate_bb.x0, field.gate_bb.y0)
+        ty0 = ty0 + 1
+        obsi.graphics.write("G", tx0, ty0)
+        obsi.graphics.write("A", tx0, ty0 + 1)
+        obsi.graphics.write("T", tx0, ty0 + 2)
+        obsi.graphics.write("E", tx0, ty0 + 3)
+
+        -- revert colours
+        obsi.graphics.setForegroundColor(colors.white)
+        obsi.graphics.setBackgroundColor(colors.black)
+    end
+
+    if state ~= GameState.GOT_WINNER then
+        simulate_all(state)
         apply_travel_all()
     end
 
@@ -90,7 +111,7 @@ function obsi.draw()
     local winner = check_winner()
 
     if winner then
-        running = false
+        state = GameState.GOT_WINNER
 
         obsi.graphics.write("Winner: " .. winner.name, 1, 1)
         obsi.graphics.draw(winner.sprite, 1, 2)
