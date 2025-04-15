@@ -103,7 +103,6 @@ function Honse.prototype:check_oob()
 end
 
 function Honse.prototype:check_wall_collision()
-    -- TODO: check horse and other collisions
     return self:get_hitbox():test_any_point(function(x, y)
         -- offscreen is always a collision
         if self:check_oob() then
