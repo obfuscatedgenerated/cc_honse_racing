@@ -6,11 +6,16 @@ local AIR_COLOUR = colors.white
 local CARROT_COLOUR = colors.orange
 local TRANSPARENT = -1
 
+local READ_SHIFT = {
+    x = 1,
+    y = 1
+}
+
 local function read_colour(x, y)
-    local col = sprite.data[math.floor(y)]
+    local col = sprite.data[math.floor(y) + READ_SHIFT.y]
     if col == nil then return nil end
 
-    return col[math.floor(x)]
+    return col[math.floor(x) + READ_SHIFT.x]
 end
 
 return {
