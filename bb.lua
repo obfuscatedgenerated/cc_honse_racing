@@ -1,3 +1,5 @@
+local obsi = require "obsi2"
+
 local BB = {}
 BB.mt = {}
 BB.prototype = {
@@ -23,6 +25,12 @@ function BB.mt.__index(table, key)
     if key == "height" then return table.y1 - table.y0 end
 
     return BB.prototype[key]
+end
+
+function BB.prototype:debug_draw()
+    obsi.graphics.setForegroundColor(colors.red)
+    obsi.graphics.rectangle("fill", self.x0, self.y0, self.width, self.height)
+    obsi.graphics.setForegroundColor(colors.white)
 end
 
 function BB.prototype:copy()

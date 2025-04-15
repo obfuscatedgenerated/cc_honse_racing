@@ -78,6 +78,7 @@ local running = true
 
 function obsi.draw()
     obsi.graphics.draw(field.sprite, 1, 1)
+    field.gate_bb:debug_draw()
 
     if running then
         simulate_all()

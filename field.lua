@@ -19,6 +19,13 @@ local spawn_bb = BB.new{
     y1 = 20
 }
 
+local gate_bb = BB.new{
+    x0 = 50,
+    y0 = 7,
+    x1 = 55,
+    y1 = 23
+}
+
 local function read_colour(x, y)
     local col = sprite.data[math.floor(y) + READ_SHIFT.y]
     if col == nil then return nil end
@@ -29,6 +36,7 @@ end
 return {
     sprite = sprite,
     spawn_bb = spawn_bb,
+    gate_bb = gate_bb,
     AIR_COLOUR = AIR_COLOUR,
     CARROT_COLOUR = CARROT_COLOUR,
     read_colour = read_colour,
