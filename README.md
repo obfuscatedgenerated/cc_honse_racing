@@ -6,6 +6,8 @@ Depends on the great [OBSI2 library](https://github.com/simadude/obsi2) to be in
 
 Run with `honse/init` or write your custom logic with `require "honse/game_loop"`
 
+Designed for an advanced 8x4 monitor cluster (largest approximately widescreen cluster)
+
 ## Installer
 
 `wget run https://github.com/obfuscatedgenerated/cc_honse_racing/raw/refs/heads/main/install/install.lua`
