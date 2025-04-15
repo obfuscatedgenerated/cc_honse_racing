@@ -1,5 +1,3 @@
-local field = require "field"
-
 local BB = {}
 BB.mt = {}
 BB.prototype = {
@@ -8,6 +6,8 @@ BB.prototype = {
     x1 = 0,
     y1 = 0
 }
+
+local TRANSPARENT = -1
 
 function BB.new(o)
     setmetatable(o, BB.mt)
@@ -74,7 +74,7 @@ function BB.prototype:for_each_point(func, ignore_mask)
                 local y_in_bbox = y - self.y0 + 1
 
                 -- any mask value that isnt transparent is ignored
-                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == field.TRANSPARENT then
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
                     func(x, y)
                 end
             end
@@ -94,7 +94,7 @@ function BB.prototype:test_any_point(func, ignore_mask)
                 local y_in_bbox = y - self.y0 + 1
 
                 -- any mask value that isnt TRANSPARENT (transparent) is ignored
-                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == field.TRANSPARENT then
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
                     if func(x, y) then
                         return true
                     end
@@ -118,7 +118,7 @@ function BB.prototype:test_all_points(func, ignore_mask)
                 local y_in_bbox = y - self.y0 + 1
 
                 -- any mask value that isnt transparent is ignored
-                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == field.TRANSPARENT then
+                if ignore_mask[y_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] and ignore_mask[y_in_bbox][x_in_bbox] == TRANSPARENT then
                     results[x] = func(x, y)
                 else
                     results[x] = nil
@@ -155,6 +155,13 @@ function BB.prototype:test_all_corners(func)
         bl=func(self.x0, self.y1),
         br=func(self.x1, self.y1)
     }
+end
+
+function BB.prototype:random_point()
+    local x = math.random(self.x0, self.x1)
+    local y = math.random(self.y0, self.y1)
+
+    return x, y
 end
 
 return BB

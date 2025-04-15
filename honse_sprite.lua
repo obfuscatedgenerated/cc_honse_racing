@@ -3,6 +3,10 @@ local obsi = require "obsi2"
 local field = require "field"
 local BB = require "bb"
 
+local TRANSPARENT = -1
+
+local COLLIDE_DEBUG = false
+
 local honse_template = obsi.graphics.newImage("honse_template.nfp")
 
 local PHYSICS_MARGIN = 1 -- TODO: sep margin for walls and horse collision. walls best as 2, horse best as 0 or 1
@@ -15,6 +19,7 @@ local BB_SHIFT = {
 local Honse = {}
 Honse.mt = {}
 Honse.prototype = {
+    name = "",
     sprite = { {} },
     x = 1,
     y = 1,
@@ -102,7 +107,7 @@ function Honse.prototype:check_wall_collision()
 
         local colour = field.read_colour(x, y)
 
-        if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= field.TRANSPARENT then
+        if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= TRANSPARENT then
             if colour == field.CARROT_COLOUR then
                 self.winner = true
             end
@@ -128,7 +133,7 @@ function Honse.prototype:apply_wall_bounce()
 
         local colour = field.read_colour(x, y)
 
-        if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= field.TRANSPARENT then
+        if colour ~= nil and colour ~= field.AIR_COLOUR and colour ~= TRANSPARENT then
             local x_diff = x - center_x
             local y_diff = y - center_y
 
@@ -169,7 +174,9 @@ function Honse.prototype:check_and_apply_horse_collision(others)
         local other = others[i]
 
         if other ~= self and self:get_hitbox():intersects(other:get_bb()) then
-            obsi.graphics.write("horse colliding", 1, 2)
+            if COLLIDE_DEBUG then
+                obsi.graphics.write("horse colliding", 1, 2)
+            end
             
             -- only apply my own bounce, the NEIGHbour can handle its own bouncing
             local x_diff, y_diff = self:get_vector_from(other)
@@ -204,21 +211,23 @@ function Honse.prototype:simulate(others)
         self.last_safe_y = self.y
     end
 
-    -- TODO: win check broke?
     if self.winner then
-        obsi.graphics.write("winner", 1, 1)
+        if COLLIDE_DEBUG then
+            obsi.graphics.write("winner", 1, 2)
+        end
+
         return
     end
 
     if wall_colliding then
-        obsi.graphics.write("wall colliding", 1, 1)
+        if COLLIDE_DEBUG then
+            obsi.graphics.write("wall colliding", 1, 2)
+        end
+
         self:apply_wall_bounce()
     end
 
     self:check_and_apply_horse_collision(others)
-
-    -- apply travel
-    self:apply_travel()
 end
 
 return Honse
