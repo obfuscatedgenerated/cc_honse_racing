@@ -6,7 +6,7 @@ Depends on the great [OBSI2 library](https://github.com/simadude/obsi2) to be in
 
 Run with `honse/init` or write your custom logic with `local game_loop = require "honse/game_loop"`, where you can [add hooks](game_loop.lua) and then [run the loop](init.lua)
 
-Designed for an advanced 8x4 monitor cluster (largest approximately widescreen cluster)
+Designed for an advanced 8x4 monitor cluster (largest approximately widescreen cluster). You can also remove some monitors from the right to form a 4:3 shape if the right column messages are not required (depends if you wish to add custom overlays and behaviour with hooks or just leave the game as a thing to look at).
 
 ## Installer
 

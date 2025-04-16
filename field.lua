@@ -13,16 +13,16 @@ local READ_SHIFT = {
 }
 
 local spawn_bb = BB.new{
-    x0 = 25,
+    x0 = 10,
     y0 = 10,
-    x1 = 45,
+    x1 = 30,
     y1 = 20
 }
 
 local gate_bb = BB.new{
-    x0 = 50,
+    x0 = 35,
     y0 = 9,
-    x1 = 55,
+    x1 = 40,
     y1 = 22
 }
 
@@ -33,14 +33,14 @@ local function read_colour(x, y)
     return col[math.floor(x) + READ_SHIFT.x]
 end
 
-local center = {
-    x = math.floor(sprite.width / 4),
+local alert_center = {
+    x = math.floor(sprite.width / 5),
     y = math.floor(sprite.height / 5) - 1
 }
 
 return {
     sprite = sprite,
-    center = center,
+    alert_center = alert_center,
     spawn_bb = spawn_bb,
     gate_bb = gate_bb,
     AIR_COLOUR = AIR_COLOUR,

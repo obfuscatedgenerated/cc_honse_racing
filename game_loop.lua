@@ -186,8 +186,8 @@ local function update()
         local text = "PLACE BETS... " .. time_left
         if time_left < 1 then text = "GO!" end
         local text_width = #text
-        local text_x = field.center.x - math.floor(text_width / 2)
-        obsi.graphics.write(text, text_x, field.center.y)
+        local text_x = field.alert_center.x - math.floor(text_width / 2)
+        obsi.graphics.write(text, text_x, field.alert_center.y)
 
         -- revert colours
         obsi.graphics.setForegroundColor(colors.white)
