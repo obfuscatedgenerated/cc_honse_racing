@@ -241,6 +241,9 @@ local function update()
         end
     end
 
+    -- now is a good time to draw custom stuff in order to delay firing post-update until the custom drawing is complete
+    run_hooks("once-draw_custom")
+
     run_hooks("post-update")
 end
 
