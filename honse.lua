@@ -306,6 +306,9 @@ function Honse.prototype:simulate(state, others)
     end
 
     self:check_and_apply_horse_collision(others)
+
+    -- TODO: share bounce vector and normalise as last thing before travel.
+    -- currently there could be an edge case of a collision of wall and horse at same time, leading to incorrect bounce
 end
 
 return Honse
