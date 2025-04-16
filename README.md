@@ -4,7 +4,7 @@
 
 Depends on the great [OBSI2 library](https://github.com/simadude/obsi2) to be installed into the `/lib/` directory [(or use the installer!)](#installer)
 
-Run with `honse/init` or write your custom logic with `require "honse/game_loop"`
+Run with `honse/init` or write your custom logic with `local game_loop = require "honse/game_loop"`, where you can [add hooks](game_loop.lua) and then [run the loop](init.lua)
 
 Designed for an advanced 8x4 monitor cluster (largest approximately widescreen cluster)
 
