@@ -99,7 +99,8 @@ function Honse.prototype:get_vector_to(other)
 end
 
 function Honse.prototype:check_oob()
-    return self.x < 1 or self.y < 1 or self.x > field.sprite.width or self.y > field.sprite.height
+    --return not field.bb:contains(self:get_hitbox()) -- contains checks all points are within the bb, but the hitbox can be slightly out and it be fine!
+    return not field.bb:intersects(self:get_hitbox())
 end
 
 function Honse.prototype:check_wall_collision()
