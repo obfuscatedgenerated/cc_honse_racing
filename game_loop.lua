@@ -216,8 +216,9 @@ local function update()
     end
 
     if state == GameState.GOT_WINNER then
-        local text_x, text_y = obsi.graphics.pixelToTermCoordinates(field.right_margin_bb.x0, field.right_margin_bb.y0)
-        obsi.graphics.write("Winner: " .. winner.name, text_x, text_y + 1)
+        -- commented out, but you can do something similar in a hook!
+        --local text_x, text_y = obsi.graphics.pixelToTermCoordinates(field.right_margin_bb.x0, field.right_margin_bb.y0)
+        --obsi.graphics.write("Winner: " .. winner.name, text_x, text_y + 1)
 
         -- reset after 5 seconds
         if obsi.timer.getTime() - timer_start > 5 then
