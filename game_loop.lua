@@ -210,7 +210,7 @@ local function update()
 
     if winner and state ~= GameState.GOT_WINNER then
         -- one off transition
-        run_hooks("once-got_winner")
+        run_hooks("once-got_winner", winner)
         timer_start = obsi.timer.getTime()
         state = GameState.GOT_WINNER
     end
