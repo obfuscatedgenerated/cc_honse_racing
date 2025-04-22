@@ -60,17 +60,17 @@ end
 local function setup()
     run_hooks("pre-setup")
 
-    local green_honse = Honse.from_colour(colors.green)
-    green_honse.name = "Green"
-    table.insert(honses, green_honse)
+    local jovial_merryment = Honse.from_colour(colors.orange)
+    jovial_merryment.name = "J. Merryment"
+    table.insert(honses, jovial_merryment)
 
     local blue_honse = Honse.from_colour(colors.blue)
     blue_honse.name = "Blue"
     table.insert(honses, blue_honse)
 
-    local red_honse = Honse.from_colour(colors.red)
-    red_honse.name = "Red"
-    table.insert(honses, red_honse)
+    local pink_honse = Honse.from_colour(colors.pink)
+    pink_honse.name = "Pink"
+    table.insert(honses, pink_honse)
 
     local yellow_honse = Honse.from_colour(colors.yellow)
     yellow_honse.name = "Yellow"
