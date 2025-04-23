@@ -64,9 +64,9 @@ local function setup()
     jovial_merryment.name = "J. Merryment"
     table.insert(honses, jovial_merryment)
 
-    local blue_honse = Honse.from_colour(colors.blue)
-    blue_honse.name = "Blue"
-    table.insert(honses, blue_honse)
+    local bn_board = Honse.from_colour(colors.blue)
+    bn_board.name = "Bullet'n Board"
+    table.insert(honses, bn_board)
 
     local pink_honse = Honse.from_colour(colors.pink)
     pink_honse.name = "Pink"
